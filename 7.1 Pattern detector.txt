@@ -1,0 +1,59 @@
+`timescale 1ns / 1ps
+
+
+module pattern_detector (
+	input in,clk,
+	input [3:0]seq,
+	input reset,
+	output reg out
+	);
+
+reg [3:0]temp;
+
+always @(posedge clk)
+if(reset)
+out<=0;
+else
+begin
+temp = temp << 1;
+temp[0] = in;
+end
+
+always @(posedge clk)
+out = (temp == seq) ? 1 : 0;
+
+endmodule
+
+module tb;
+
+reg clk=0;
+reg in;
+reg reset;
+
+reg [3:0] seq;
+wire out;
+
+pattern_detector dut (.clk(clk),.in(in),.out(out),.seq(seq),.reset(reset));
+
+always
+#2 clk = !clk;
+
+initial
+begin
+    seq = 4'b0110;
+    @(negedge clk) reset = 1;
+    @(negedge clk) reset = 0;
+	@(negedge clk) in = 0;
+	@(negedge clk) in = 1;
+	@(negedge clk) in = 1;
+	@(negedge clk) in = 0;
+	@(negedge clk) in = 1;
+	@(negedge clk) in = 1;
+	@(negedge clk) in = 0;
+	@(negedge clk) in = 0;
+	@(negedge clk) in = 1;
+	@(negedge clk) in = 1;
+	@(negedge clk) in = 0;
+end
+
+endmodule

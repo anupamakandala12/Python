@@ -1,0 +1,62 @@
+`timescale 1ns / 1ps
+
+module top(
+    input clk,
+    input wea,
+    input [2:0] addr,
+    input [7:0]data_in,
+    output [7:0]data_out,
+    output reg [8:0] sum = 0
+    );
+    
+    
+    blk_mem_gen_0 your_instance_name (
+      .clka(clk),    // input wire clka
+      .wea(wea),      // input wire [0 : 0] wea
+      .addra(addr),  // input wire [2 : 0] addra
+      .dina(data_in),    // input wire [7 : 0] dina
+      .douta(data_out)  // output wire [7 : 0] douta
+    );
+    
+   always @(posedge clk)
+   sum = sum + data_out; 
+endmodule
+
+timescale 1ns / 1ps
+
+
+module tb;
+
+reg clk=0;           
+reg wea;           
+reg [2:0] addr;    
+reg [7:0]data_in;  
+wire [7:0]data_out;
+wire [8:0]sum;
+
+top dut (
+clk,          
+wea,          
+addr,   
+data_in, 
+data_out,
+sum);
+
+always 
+#2 clk = !clk;
+
+initial
+begin
+wea = 1'b1; addr = 3'd0; data_in = 8'd7;
+
+#4
+wea = 1'b1; addr = 3'd1; data_in = 8'd3;
+#4
+wea = 1'b1; addr = 3'd2; data_in = 8'd1;
+#4
+wea = 1'bx; addr = 3'dx; data_in = 8'dx;
+
+end
+
+
+endmodule

@@ -1,0 +1,84 @@
+module PWM(
+     input clk,
+     input [7:0]B,
+     output pulse);
+
+reg[7:0]counter;
+always@(negedge clk)
+begin
+        if(counter<100)counter<=counter+1;
+        else counter<=0;
+ end
+assign pulse =(counter<B)? 1:0;
+endmodule
+
+*******************************************************************************************************8
+
+module s_c_count(
+input clk,
+input [1:0] speed,
+input rst,
+output new_clk,
+output[7:0]counter);
+reg[7:0]speed_trans;
+
+
+always@(posedge clk)
+    begin
+        case(speed)
+            2'b00: speed_trans<=8'd4;
+            2'b01: speed_trans<=8'd60;
+            2'b10: speed_trans<=8'd20;
+            2'b11: speed_trans<=8'd95;
+         endcase
+     end
+   freq_div fd1(.DIV(speed_trans), .clk_in(clk), .clk_reduced(new_clk), .counter(counter), .rst(rst));
+   endmodule
+   
+module freq_div(
+    input[7:0] DIV,
+    input clk_in,
+    input rst,
+    output  clk_reduced,
+    output reg [7:0]counter); 
+    always@(posedge clk_in)
+     begin
+               if(rst==1)
+               begin
+                   counter<=0;
+               end
+               else
+               begin
+                if(counter<100)counter<=counter+1;
+                else counter<=0;
+        end
+    end       
+    assign clk_reduced =(counter < DIV)? 1:0;
+
+endmodule
+
+
+module tb_s_c_count( );
+reg enable,clk;
+reg [1:0]speed;
+wire[15:0] count;
+
+s_c_count dut(.enable(enable), .clk(clk), .speed(speed), .count(count));
+initial 
+    begin 
+        clk=0;
+        forever #5 clk=~clk;
+    end
+initial
+    begin
+        enable=0; speed=2'd0; #50;
+        enable=1; #200;
+        speed=2'd2; #500;
+        speed=2'd3; #1000;
+        speed=2'd1;
+    end
+endmodule
+*********************************************************************************************
+
+
+
